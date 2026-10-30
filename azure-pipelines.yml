@@ -61,14 +61,14 @@ stages:
       displayName: 'Restore NuGet Packages'
       inputs:
         command: 'restore'
-        projects: 'Microservice/AuthLibrary/AuthLibrary.csproj'
+        projects: 'AuthLibrary/AuthLibrary.csproj'
 
     # Build class library
     - task: DotNetCoreCLI@2
       displayName: 'Build AuthLibrary'
       inputs:
         command: 'build'
-        projects: 'Microservice/AuthLibrary/AuthLibrary.csproj'
+        projects: 'AuthLibrary/AuthLibrary.csproj'
         arguments: >
           --configuration $(buildConfiguration)
           --no-restore
@@ -79,7 +79,7 @@ stages:
       displayName: 'Pack AuthLibrary'
       inputs:
         command: 'pack'
-        packagesToPack: 'Microservice/AuthLibrary/AuthLibrary.csproj'
+        packagesToPack: 'AuthLibrary/AuthLibrary.csproj'
         versioningScheme: 'off'
         arguments: >
           --configuration $(buildConfiguration)
