@@ -2,6 +2,7 @@
 # =====================================================
 # ADVANCED .NET MICROSERVICES
 # Azure DevOps CI/CD Pipeline
+# AuthLibrary NuGet Package
 # =====================================================
 
 trigger:
@@ -24,7 +25,6 @@ variables:
   patchVersion: $[counter(variables['Build.SourceBranchName'], 0)]
 
   packageVersion: '$(majorVersion).$(minorVersion).$(patchVersion)'
-
   packageOutputPath: '$(Build.ArtifactStagingDirectory)/packages'
 
 name: $(packageVersion)
@@ -43,13 +43,12 @@ stages:
   displayName: 'Build and Package AuthLibrary'
 
   jobs:
-
   - job: Build
     displayName: 'Build AuthLibrary'
 
     steps:
 
-    # Install .NET SDK
+    # Install .NET 8 SDK
     - task: UseDotNet@2
       displayName: 'Install .NET 8 SDK'
       inputs:
@@ -80,14 +79,36 @@ stages:
       inputs:
         command: 'pack'
         packagesToPack: 'AuthLibrary/AuthLibrary.csproj'
+        configuration: '$(buildConfiguration)'
+        packDirectory: '$(packageOutputPath)'
         versioningScheme: 'off'
         arguments: >
-          --configuration $(buildConfiguration)
           --no-build
-          --output $(packageOutputPath)
           -p:PackageVersion=$(packageVersion)
 
-    # Publish pipeline artifact
+    # Verify generated NuGet package
+    - powershell: |
+        $packagePath = "$(packageOutputPath)"
+
+        Write-Host "Checking package directory: $packagePath"
+
+        if (!(Test-Path $packagePath)) {
+            throw "Package directory does not exist: $packagePath"
+        }
+
+        $packages = Get-ChildItem -Path $packagePath -Filter "*.nupkg"
+
+        if ($packages.Count -eq 0) {
+            throw "No NuGet packages were generated."
+        }
+
+        Write-Host "Generated NuGet packages:"
+        $packages | ForEach-Object {
+            Write-Host $_.FullName
+        }
+      displayName: 'Verify NuGet Package'
+
+    # Publish package as a pipeline artifact
     - task: PublishPipelineArtifact@1
       displayName: 'Publish NuGet Artifact'
       inputs:
@@ -101,11 +122,11 @@ stages:
 
 - stage: PublishToFeed
   displayName: 'Publish to Azure Artifacts'
+
   dependsOn: BuildAndPublish
   condition: succeeded()
 
   jobs:
-
   - job: PublishPackage
     displayName: 'Publish AuthLibrary NuGet Package'
 
