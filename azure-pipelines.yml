@@ -1,0 +1,124 @@
+
+# =====================================================
+# .NET MICROSERVICES - AZURE DEVOPS PIPELINE
+# =====================================================
+
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'windows-latest'
+
+# =====================================================
+# VARIABLES
+# =====================================================
+
+variables:
+  buildConfiguration: 'Release'
+
+  packageOutputPath: '$(Build.ArtifactStagingDirectory)/packages'
+
+  majorVersion: 1
+  minorVersion: 0
+  patchVersion: $[counter(variables['Build.SourceBranchName'], 0)]
+
+  packageVersion: '$(majorVersion).$(minorVersion).$(patchVersion)'
+
+name: $(packageVersion)
+
+# =====================================================
+# STAGES
+# =====================================================
+
+stages:
+
+# =====================================================
+# STAGE 1: BUILD AND PUBLISH
+# =====================================================
+
+- stage: BuildAndPublish
+  displayName: 'Build and Publish Microservices'
+
+  jobs:
+
+  - job: Build
+    displayName: 'Build .NET Microservices'
+
+    steps:
+
+    # 1. Install .NET SDK
+    - task: UseDotNet@2
+      displayName: 'Install .NET SDK'
+      inputs:
+        packageType: 'sdk'
+        version: '8.x'
+
+    # 2. Restore NuGet Packages
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore NuGet Packages'
+      inputs:
+        command: 'restore'
+        projects: '**/*.sln'
+
+    # 3. Build Solution
+    - task: DotNetCoreCLI@2
+      displayName: 'Build Microservices'
+      inputs:
+        command: 'build'
+        projects: '**/*.sln'
+        arguments: >
+          --configuration $(buildConfiguration)
+          --no-restore
+
+    # # 4. Run Unit Tests
+    # - task: DotNetCoreCLI@2
+    #   displayName: 'Run Unit Tests'
+    #   inputs:
+    #     command: 'test'
+    #     projects: '**/*Tests.csproj'
+    #     arguments: >
+    #       --configuration $(buildConfiguration)
+    #       --no-build
+    #     publishTestResults: true
+
+    # 5. Publish Microservices
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish Microservices'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '**/*.csproj'
+        arguments: >
+          --configuration $(buildConfiguration)
+          --no-build
+          --output $(Build.ArtifactStagingDirectory)/publish
+        zipAfterPublish: true
+
+    # 6. Publish Pipeline Artifact
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Build Artifacts'
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)/publish'
+        artifact: 'Microservices'
+        publishLocation: 'pipeline'
+
+# =====================================================
+# STAGE 2: DEPLOY
+# =====================================================
+
+- stage: Deploy
+  displayName: 'Deploy Microservices'
+  dependsOn: BuildAndPublish
+  condition: succeeded()
+
+  jobs:
+
+  - job: DeployMicroservices
+    displayName: 'Deploy Microservices'
+
+    steps:
+
+    - script: echo "Ready to configure microservices deployment."
+      displayName: 'Prepare Deployment'
