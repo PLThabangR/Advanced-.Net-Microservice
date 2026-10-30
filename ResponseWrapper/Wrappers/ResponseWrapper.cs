@@ -115,7 +115,21 @@ namespace ResponseWrapper.Wrappers
         {
             return new ResponseWrapper<T>() { IsSuccessful = false ,Messages =messages };
         }
+        //With T Data fail
+        public static ResponseWrapper<T> Fail(T data)
+        {
+            return new ResponseWrapper<T>() { Data=data,IsSuccessful = false };
+        }
 
+        public  static ResponseWrapper<T> Fail(T data,string message)
+        {
+            return new ResponseWrapper<T>() {Data=data,IsSuccessful = false, Messages = [message] };
+        }
+
+        public  static ResponseWrapper<T> Fail(T data,List<string> messages)
+        {
+            return new ResponseWrapper<T>() { Data=data, IsSuccessful = false, Messages = messages };
+        }
         //Synchronous for success
         public new static ResponseWrapper<T>Success()
         {
@@ -129,6 +143,25 @@ namespace ResponseWrapper.Wrappers
         {
             return new ResponseWrapper<T>() { IsSuccessful = true, Messages = messages };
         }
+
+        //With T data as response 
+        public  static ResponseWrapper<T> Success(T data)
+        {
+            return new ResponseWrapper<T>() {Data=data, IsSuccessful = true };
+        }
+
+        public static ResponseWrapper<T> Success(T data,string messages)
+        {
+            return new ResponseWrapper<T>() { Data = data, IsSuccessful = true, Messages = [messages] };
+        }
+
+        public static ResponseWrapper<T> Success(T data, List<string> messages)
+        {
+            return new ResponseWrapper<T>() { Data = data, IsSuccessful = true, Messages = messages };
+        }
+
+
+
 
 
         //Asyncrounous generic response for fail
@@ -144,6 +177,21 @@ namespace ResponseWrapper.Wrappers
         {
             return Task.FromResult(Fail(messages));
         }
+        //Asycronous with Type Data in the response
+        public  static Task<ResponseWrapper<T>> FailAsync(T data)
+        {
+            return Task.FromResult(Fail(data));
+        }
+
+        public static Task<ResponseWrapper<T>> FailAsync(T data,string message)
+        {
+            return Task.FromResult(Fail(data,message));
+        }
+
+        public static Task<ResponseWrapper<T>> FailAsync(T data,List< string> message)
+        {
+            return Task.FromResult(Fail(data, message));
+        }
 
         //Asyncronous generic for success
         public new static Task<ResponseWrapper<T>> SuccessAsync()
@@ -155,10 +203,27 @@ namespace ResponseWrapper.Wrappers
         {
             return Task.FromResult(Success(message));
         }
-        public new static Task<ResponseWrapper<T>> SuccesAsync(List<string> messages)
+        public new static Task<ResponseWrapper<T>> SuccessAsync(List<string> messages)
         {
             return Task.FromResult(Fail(messages));
         }
+
+        //Succes with data of type  T
+        public static Task<ResponseWrapper<T>> SuccessAsync(T data, string message)
+        {
+            return Task.FromResult(Success(data, message));
+        }
+        public static Task<ResponseWrapper<T>> SuccessAsync(T data)
+        {
+            return Task.FromResult(Success(data));
+        }
+
+        public static Task<ResponseWrapper<T>> SuccessAsync(T data, List<string> message)
+        {
+            return Task.FromResult(Success(data, message));
+        }
+
+
 
 
 
