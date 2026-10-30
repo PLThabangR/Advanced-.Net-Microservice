@@ -1,6 +1,6 @@
 
 # =====================================================
-# .NET MICROSERVICES - AZURE DEVOPS PIPELINE
+# ADVANCED MICROSERVICES - AZURE DEVOPS CI PIPELINE
 # =====================================================
 
 trigger:
@@ -39,18 +39,18 @@ stages:
 # =====================================================
 
 - stage: BuildAndPublish
-  displayName: 'Build and Publish Microservices'
+  displayName: 'Build and Publish AuthLibrary'
 
   jobs:
 
   - job: Build
-    displayName: 'Build .NET Microservices'
+    displayName: 'Build AuthLibrary Package'
 
     steps:
 
-    # 1. Install .NET SDK
+    # 1. Install .NET 8 SDK
     - task: UseDotNet@2
-      displayName: 'Install .NET SDK'
+      displayName: 'Install .NET 8 SDK'
       inputs:
         packageType: 'sdk'
         version: '8.x'
@@ -60,65 +60,36 @@ stages:
       displayName: 'Restore NuGet Packages'
       inputs:
         command: 'restore'
-        projects: '**/*.sln'
+        projects: 'AuthLibrary/AuthLibrary.csproj'
 
-    # 3. Build Solution
+    # 3. Build AuthLibrary
     - task: DotNetCoreCLI@2
-      displayName: 'Build Microservices'
+      displayName: 'Build AuthLibrary'
       inputs:
         command: 'build'
-        projects: '**/*.sln'
+        projects: 'AuthLibrary/AuthLibrary.csproj'
         arguments: >
           --configuration $(buildConfiguration)
           --no-restore
+          -p:GeneratePackageOnBuild=false
 
-    # # 4. Run Unit Tests
-    # - task: DotNetCoreCLI@2
-    #   displayName: 'Run Unit Tests'
-    #   inputs:
-    #     command: 'test'
-    #     projects: '**/*Tests.csproj'
-    #     arguments: >
-    #       --configuration $(buildConfiguration)
-    #       --no-build
-    #     publishTestResults: true
-
-    # 5. Publish Microservices
+    # 4. Package AuthLibrary
     - task: DotNetCoreCLI@2
-      displayName: 'Publish Microservices'
+      displayName: 'Create NuGet Package'
       inputs:
-        command: 'publish'
-        publishWebProjects: false
-        projects: '**/*.csproj'
+        command: 'pack'
+        packagesToPack: 'AuthLibrary/AuthLibrary.csproj'
+        versioningScheme: 'off'
         arguments: >
           --configuration $(buildConfiguration)
           --no-build
-          --output $(Build.ArtifactStagingDirectory)/publish
-        zipAfterPublish: true
+          --output $(packageOutputPath)
+          -p:PackageVersion=$(packageVersion)
 
-    # 6. Publish Pipeline Artifact
+    # 5. Publish Pipeline Artifact
     - task: PublishPipelineArtifact@1
-      displayName: 'Publish Build Artifacts'
+      displayName: 'Publish AuthLibrary Artifact'
       inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)/publish'
-        artifact: 'Microservices'
+        targetPath: '$(packageOutputPath)'
+        artifact: 'AuthLibrary'
         publishLocation: 'pipeline'
-
-# =====================================================
-# STAGE 2: DEPLOY
-# =====================================================
-
-- stage: Deploy
-  displayName: 'Deploy Microservices'
-  dependsOn: BuildAndPublish
-  condition: succeeded()
-
-  jobs:
-
-  - job: DeployMicroservices
-    displayName: 'Deploy Microservices'
-
-    steps:
-
-    - script: echo "Ready to configure microservices deployment."
-      displayName: 'Prepare Deployment'
