@@ -8,7 +8,7 @@ namespace AuthLibrary.Attributes
     {
         public MustHavePermissionAttribute( string service,string feature,string action) 
         {
-            //we call the method that build or permission
+            //we call the method that build or permission -
             //Policy comes from a base class we are inheriting AuthorizeAttribuste
             Policy = AppPermission.NameFor(service, feature, action);
         
