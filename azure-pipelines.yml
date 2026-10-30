@@ -1,6 +1,7 @@
 
 # =====================================================
-# ADVANCED MICROSERVICES - AZURE DEVOPS CI PIPELINE
+# ADVANCED .NET MICROSERVICES
+# Azure DevOps CI/CD Pipeline
 # =====================================================
 
 trigger:
@@ -18,13 +19,13 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-  packageOutputPath: '$(Build.ArtifactStagingDirectory)/packages'
-
   majorVersion: 1
   minorVersion: 0
   patchVersion: $[counter(variables['Build.SourceBranchName'], 0)]
 
   packageVersion: '$(majorVersion).$(minorVersion).$(patchVersion)'
+
+  packageOutputPath: '$(Build.ArtifactStagingDirectory)/packages'
 
 name: $(packageVersion)
 
@@ -35,50 +36,50 @@ name: $(packageVersion)
 stages:
 
 # =====================================================
-# STAGE 1: BUILD AND PUBLISH
+# STAGE 1: BUILD AND PACKAGE
 # =====================================================
 
 - stage: BuildAndPublish
-  displayName: 'Build and Publish AuthLibrary'
+  displayName: 'Build and Package AuthLibrary'
 
   jobs:
 
   - job: Build
-    displayName: 'Build AuthLibrary Package'
+    displayName: 'Build AuthLibrary'
 
     steps:
 
-    # 1. Install .NET 8 SDK
+    # Install .NET SDK
     - task: UseDotNet@2
       displayName: 'Install .NET 8 SDK'
       inputs:
         packageType: 'sdk'
         version: '8.x'
 
-    # 2. Restore NuGet Packages
+    # Restore dependencies
     - task: DotNetCoreCLI@2
       displayName: 'Restore NuGet Packages'
       inputs:
         command: 'restore'
-        projects: 'AuthLibrary/AuthLibrary.csproj'
+        projects: 'Microservice/AuthLibrary/AuthLibrary.csproj'
 
-    # 3. Build AuthLibrary
+    # Build class library
     - task: DotNetCoreCLI@2
       displayName: 'Build AuthLibrary'
       inputs:
         command: 'build'
-        projects: 'AuthLibrary/AuthLibrary.csproj'
+        projects: 'Microservice/AuthLibrary/AuthLibrary.csproj'
         arguments: >
           --configuration $(buildConfiguration)
           --no-restore
           -p:GeneratePackageOnBuild=false
 
-    # 4. Package AuthLibrary
+    # Create NuGet package
     - task: DotNetCoreCLI@2
-      displayName: 'Create NuGet Package'
+      displayName: 'Pack AuthLibrary'
       inputs:
         command: 'pack'
-        packagesToPack: 'AuthLibrary/AuthLibrary.csproj'
+        packagesToPack: 'Microservice/AuthLibrary/AuthLibrary.csproj'
         versioningScheme: 'off'
         arguments: >
           --configuration $(buildConfiguration)
@@ -86,10 +87,44 @@ stages:
           --output $(packageOutputPath)
           -p:PackageVersion=$(packageVersion)
 
-    # 5. Publish Pipeline Artifact
+    # Publish pipeline artifact
     - task: PublishPipelineArtifact@1
-      displayName: 'Publish AuthLibrary Artifact'
+      displayName: 'Publish NuGet Artifact'
       inputs:
         targetPath: '$(packageOutputPath)'
         artifact: 'AuthLibrary'
         publishLocation: 'pipeline'
+
+# =====================================================
+# STAGE 2: PUBLISH TO AZURE ARTIFACTS
+# =====================================================
+
+- stage: PublishToFeed
+  displayName: 'Publish to Azure Artifacts'
+  dependsOn: BuildAndPublish
+  condition: succeeded()
+
+  jobs:
+
+  - job: PublishPackage
+    displayName: 'Publish AuthLibrary NuGet Package'
+
+    steps:
+
+    # Download package from previous stage
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download NuGet Artifact'
+      inputs:
+        buildType: 'current'
+        artifactName: 'AuthLibrary'
+        targetPath: '$(Pipeline.Workspace)/AuthLibrary'
+
+    # Push package to private Azure Artifacts feed
+    - task: NuGetCommand@2
+      displayName: 'Push AuthLibrary to MicroservicesFeed'
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Pipeline.Workspace)/AuthLibrary/*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: '$(System.TeamProject)/MicroservicesFeed'
+        allowPackageConflicts: true
