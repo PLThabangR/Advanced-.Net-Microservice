@@ -147,16 +147,15 @@ stages:
 
     # Push package to Azure Artifacts
     - powershell: |
-        $feedUrl = "$(System.CollectionUri)$(System.TeamProject)/_packaging/MicroservicesFeed/nuget/v3/index.json"
+        $feedUrl = "https://pkgs.dev.azure.com/thabangrakgoropo26/_packaging/MicroservicesFeed/nuget/v3/index.json"
         $packagePath = "$(Pipeline.Workspace)\AuthLibrary"
 
-        Write-Host "Azure Artifacts feed: $feedUrl"
-        Write-Host "Package directory: $packagePath"
+        Write-Host "Feed URL: $feedUrl"
 
         $packages = Get-ChildItem -Path $packagePath -Filter "*.nupkg"
 
         if ($packages.Count -eq 0) {
-            throw "No NuGet packages found in $packagePath"
+            throw "No NuGet packages found."
         }
 
         foreach ($package in $packages) {
