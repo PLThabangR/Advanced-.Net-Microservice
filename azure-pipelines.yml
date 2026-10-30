@@ -141,11 +141,34 @@ stages:
         targetPath: '$(Pipeline.Workspace)/AuthLibrary'
 
     # Push package to private Azure Artifacts feed
-    - task: NuGetCommand@2
+    # Authenticate with Azure Artifacts
+    - task: NuGetAuthenticate@1
+      displayName: 'Authenticate with Azure Artifacts'
+
+    # Push package to Azure Artifacts
+    - powershell: |
+        $feedUrl = "$(System.CollectionUri)$(System.TeamProject)/_packaging/MicroservicesFeed/nuget/v3/index.json"
+        $packagePath = "$(Pipeline.Workspace)\AuthLibrary"
+
+        Write-Host "Azure Artifacts feed: $feedUrl"
+        Write-Host "Package directory: $packagePath"
+
+        $packages = Get-ChildItem -Path $packagePath -Filter "*.nupkg"
+
+        if ($packages.Count -eq 0) {
+            throw "No NuGet packages found in $packagePath"
+        }
+
+        foreach ($package in $packages) {
+            Write-Host "Publishing $($package.Name)"
+
+            dotnet nuget push $package.FullName `
+                --source $feedUrl `
+                --api-key AzureArtifacts `
+                --skip-duplicate
+
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to publish $($package.Name)"
+            }
+        }
       displayName: 'Push AuthLibrary to MicroservicesFeed'
-      inputs:
-        command: 'push'
-        packagesToPush: '$(Pipeline.Workspace)/AuthLibrary/*.nupkg'
-        nuGetFeedType: 'internal'
-        publishVstsFeed: '$(System.TeamProject)/MicroservicesFeed'
-        allowPackageConflicts: true
