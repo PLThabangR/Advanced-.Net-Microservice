@@ -2,7 +2,7 @@
 # =====================================================
 # ADVANCED .NET MICROSERVICES
 # Azure DevOps CI/CD Pipeline
-# AuthLibrary NuGet Package
+# AuthLibrary NuGet Packages
 # =====================================================
 #tryagain
 trigger:
