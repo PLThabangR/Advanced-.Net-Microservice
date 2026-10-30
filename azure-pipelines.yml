@@ -1,6 +1,6 @@
 
 # =====================================================
-# AUTH SERVICE - AZURE DEVOPS CI PIPELINE
+# ADVANCED MICROSERVICES - AZURE DEVOPS CI PIPELINE
 # =====================================================
 
 trigger:
@@ -11,8 +11,14 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
+# =====================================================
+# VARIABLES
+# =====================================================
+
 variables:
   buildConfiguration: 'Release'
+
+  packageOutputPath: '$(Build.ArtifactStagingDirectory)/packages'
 
   majorVersion: 1
   minorVersion: 0
@@ -22,6 +28,10 @@ variables:
 
 name: $(packageVersion)
 
+# =====================================================
+# STAGES
+# =====================================================
+
 stages:
 
 # =====================================================
@@ -29,18 +39,18 @@ stages:
 # =====================================================
 
 - stage: BuildAndPublish
-  displayName: 'Build and Publish Auth Library'
+  displayName: 'Build and Publish AuthLibrary'
 
   jobs:
 
   - job: Build
-    displayName: 'Build Auth Class Library'
+    displayName: 'Build AuthLibrary Package'
 
     steps:
 
-    # 1. Install .NET SDK
+    # 1. Install .NET 8 SDK
     - task: UseDotNet@2
-      displayName: 'Install .NET SDK'
+      displayName: 'Install .NET 8 SDK'
       inputs:
         packageType: 'sdk'
         version: '8.x'
@@ -50,32 +60,36 @@ stages:
       displayName: 'Restore NuGet Packages'
       inputs:
         command: 'restore'
-        projects: '**/Auth.csproj'
+        projects: 'AuthLibrary/AuthLibrary.csproj'
 
-    # 3. Build Auth Library
+    # 3. Build AuthLibrary
     - task: DotNetCoreCLI@2
-      displayName: 'Build Auth Library'
+      displayName: 'Build AuthLibrary'
       inputs:
         command: 'build'
-        projects: '**/Auth.csproj'
-        arguments: '--configuration $(buildConfiguration) --no-restore'
+        projects: 'AuthLibrary/AuthLibrary.csproj'
+        arguments: >
+          --configuration $(buildConfiguration)
+          --no-restore
+          -p:GeneratePackageOnBuild=false
 
-    # 4. Publish Auth Library
+    # 4. Package AuthLibrary
     - task: DotNetCoreCLI@2
-      displayName: 'Publish Auth Library'
+      displayName: 'Create NuGet Package'
       inputs:
-        command: 'publish'
-        publishWebProjects: false
-        projects: '**/Auth.csproj'
+        command: 'pack'
+        packagesToPack: 'AuthLibrary/AuthLibrary.csproj'
+        versioningScheme: 'off'
         arguments: >
           --configuration $(buildConfiguration)
           --no-build
-          --output $(Build.ArtifactStagingDirectory)/Auth
+          --output $(packageOutputPath)
+          -p:PackageVersion=$(packageVersion)
 
     # 5. Publish Pipeline Artifact
     - task: PublishPipelineArtifact@1
-      displayName: 'Publish Auth Artifact'
+      displayName: 'Publish AuthLibrary Artifact'
       inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)/Auth'
-        artifact: 'Auth'
+        targetPath: '$(packageOutputPath)'
+        artifact: 'AuthLibrary'
         publishLocation: 'pipeline'
