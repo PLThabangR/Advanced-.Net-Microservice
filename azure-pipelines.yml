@@ -1,6 +1,6 @@
 
 # =====================================================
-# .NET MICROSERVICES - AZURE DEVOPS PIPELINE
+# AUTH SERVICE - AZURE DEVOPS CI PIPELINE
 # =====================================================
 
 trigger:
@@ -11,14 +11,8 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-# =====================================================
-# VARIABLES
-# =====================================================
-
 variables:
   buildConfiguration: 'Release'
-
-  packageOutputPath: '$(Build.ArtifactStagingDirectory)/packages'
 
   majorVersion: 1
   minorVersion: 0
@@ -28,10 +22,6 @@ variables:
 
 name: $(packageVersion)
 
-# =====================================================
-# STAGES
-# =====================================================
-
 stages:
 
 # =====================================================
@@ -39,12 +29,12 @@ stages:
 # =====================================================
 
 - stage: BuildAndPublish
-  displayName: 'Build and Publish Microservices'
+  displayName: 'Build and Publish Auth Library'
 
   jobs:
 
   - job: Build
-    displayName: 'Build .NET Microservices'
+    displayName: 'Build Auth Class Library'
 
     steps:
 
@@ -60,65 +50,32 @@ stages:
       displayName: 'Restore NuGet Packages'
       inputs:
         command: 'restore'
-        projects: '**/*.sln'
+        projects: '**/Auth.csproj'
 
-    # 3. Build Solution
+    # 3. Build Auth Library
     - task: DotNetCoreCLI@2
-      displayName: 'Build Microservices'
+      displayName: 'Build Auth Library'
       inputs:
         command: 'build'
-        projects: '**/*.sln'
-        arguments: >
-          --configuration $(buildConfiguration)
-          --no-restore
+        projects: '**/Auth.csproj'
+        arguments: '--configuration $(buildConfiguration) --no-restore'
 
-    # # 4. Run Unit Tests
-    # - task: DotNetCoreCLI@2
-    #   displayName: 'Run Unit Tests'
-    #   inputs:
-    #     command: 'test'
-    #     projects: '**/*Tests.csproj'
-    #     arguments: >
-    #       --configuration $(buildConfiguration)
-    #       --no-build
-    #     publishTestResults: true
-
-    # 5. Publish Microservices
+    # 4. Publish Auth Library
     - task: DotNetCoreCLI@2
-      displayName: 'Publish Microservices'
+      displayName: 'Publish Auth Library'
       inputs:
         command: 'publish'
         publishWebProjects: false
-        projects: '**/*.csproj'
+        projects: '**/Auth.csproj'
         arguments: >
           --configuration $(buildConfiguration)
           --no-build
-          --output $(Build.ArtifactStagingDirectory)/publish
-        zipAfterPublish: true
+          --output $(Build.ArtifactStagingDirectory)/Auth
 
-    # 6. Publish Pipeline Artifact
+    # 5. Publish Pipeline Artifact
     - task: PublishPipelineArtifact@1
-      displayName: 'Publish Build Artifacts'
+      displayName: 'Publish Auth Artifact'
       inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)/publish'
-        artifact: 'Microservices'
+        targetPath: '$(Build.ArtifactStagingDirectory)/Auth'
+        artifact: 'Auth'
         publishLocation: 'pipeline'
-
-# =====================================================
-# STAGE 2: DEPLOY
-# =====================================================
-
-- stage: Deploy
-  displayName: 'Deploy Microservices'
-  dependsOn: BuildAndPublish
-  condition: succeeded()
-
-  jobs:
-
-  - job: DeployMicroservices
-    displayName: 'Deploy Microservices'
-
-    steps:
-
-    - script: echo "Ready to configure microservices deployment."
-      displayName: 'Prepare Deployment'
