@@ -12,5 +12,7 @@ namespace AuthLibrary.Constants.Authentication
         public const string Expiration = "exp";
         //Issuer a service that created the token
         public const string Issuer = "gateway";
+
+
     }
 }
