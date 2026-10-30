@@ -4,6 +4,16 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <Title>Aithentication Library</Title>
+	  <PackageId>AuthLibrary</PackageId>
+	  <Authors>ThabangR</Authors>
+	  <Company>TR Software Development</Company>
+	  <Description>Identity purpose</Description>
+	  <SignAssembly>true</SignAssembly>
+	  <PackageProjectUrl>website</PackageProjectUrl>
+	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+	  
   </PropertyGroup>
 
   <ItemGroup>
