@@ -13,6 +13,7 @@
 	  <SignAssembly>true</SignAssembly>
 	  <PackageProjectUrl>website</PackageProjectUrl>
 	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	  
   </PropertyGroup>
 
