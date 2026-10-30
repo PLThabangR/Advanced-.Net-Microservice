@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace AuthLibrary.Constants.Authentication
 {   //Help to create json web token
     public class AppClaim
-    {
+    {   
+        //This are used to evaluate
         public const string Permission = "permission";
         public const string Expiration = "exp";
         //Issuer a service that created the token
