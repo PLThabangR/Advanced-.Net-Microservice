@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ResponseWrapper
+namespace ResponseWrapper.Exceptions
 {
     // this will help to notify the gateway if there is any service down or error somewhere 
     public  class ServiceUnAvailableException:Exception
