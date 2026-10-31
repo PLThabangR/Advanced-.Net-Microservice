@@ -25,8 +25,20 @@ namespace ResponseWrapper.Wrappers
             });
 
             return responseObject;
+        }
 
+        //Extenstion for non generic type
+        public static async Task<ResponseWrapper> ToResponse(this HttpResponseMessage responseMessage)
+        {
+            var responseAsString = await responseMessage.Content.ReadAsStringAsync();
+            //Now we ae deserializing
+            var responseObject = JsonSerializer.Deserialize<ResponseWrapper>(responseAsString, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                ReferenceHandler = ReferenceHandler.Preserve
+            });
 
+            return responseObject;
         }
 
     }
