@@ -3,7 +3,17 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <Title>Global Response wrapper</Title>
+	  <PackageId>ResponseWrapper</PackageId>
+	  <Authors>ThabangR</Authors>
+	  <Company>TR Software Systems</Company>
+	  <Description>Response wrapper centralized from services</Description>
+	  <SignAssembly>true</SignAssembly>
+	  <PackageProjectUrl>website</PackageProjectUrl>
+	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
 </Project>
