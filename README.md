@@ -10,29 +10,8 @@ The project explores modern backend engineering practices, distributed system co
 
 ---
 
-## 📖 About the Course
 
-This course focuses on building production-oriented microservices and understanding the architectural decisions involved in developing distributed applications.
-
-It covers synchronous and asynchronous communication, message brokers, API gateways, identity management, distributed caching, CQRS, clean architecture, and automated cloud deployment.
-
-**Course Information**
-
-| Detail                 | Information                                                  |
-| ---------------------- | ------------------------------------------------------------ |
-| Course                 | Advanced Microservices with .NET: Development & Azure Deploy |
-| Category               | .NET Microservices                                           |
-| Instructor             | Junior Matlou                                                |
-| Course Rating          | 4.5/5                                                        |
-| Students               | 330                                                          |
-| Last Updated           | January 2025                                                 |
-| Course Duration        | 37 hours 23 minutes                                          |
-| Course Sections        | 9                                                            |
-| Lectures               | 320                                                          |
-| Downloadable Resources | 6                                                            |
-| Language               | English                                                      |
-
-## 🎯 Learning Objectives
+## 🎯 Objectives
 
 The primary objective is to develop practical skills in building secure, scalable, maintainable, and cloud-ready distributed applications.
 
