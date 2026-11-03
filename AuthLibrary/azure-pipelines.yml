@@ -1,0 +1,89 @@
+
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  packageOutputPath: '$(Build.ArtifactStagingDirectory)/packages'
+
+  # Semantic versioning
+  majorVersion: '1'
+  minorVersion: '0'
+  patchVersion: $[counter(variables['Build.SourceBranchName'], 0)]
+  packageVersion: '$(majorVersion).$(minorVersion).$(patchVersion)'
+
+stages:
+  - stage: BuildAndPublish
+    displayName: 'Build, Pack and Publish AuthLibrary'
+
+    jobs:
+      - job: BuildJob
+        displayName: 'Build and Publish NuGet Package'
+
+        steps:
+
+          # Install .NET SDK
+          - task: UseDotNet@2
+            displayName: 'Install .NET SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '10.x'
+
+          # Restore NuGet dependencies
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet Packages'
+            inputs:
+              command: 'restore'
+              projects: '**/*.csproj'
+
+          # Build AuthLibrary
+          - task: DotNetCoreCLI@2
+            displayName: 'Build AuthLibrary'
+            inputs:
+              command: 'build'
+              projects: '**/AuthLibrary.csproj'
+              arguments: '--configuration $(buildConfiguration) --no-restore'
+
+          # Run unit tests
+         # - task: DotNetCoreCLI@2
+           # displayName: 'Run Unit Tests'
+          #  inputs:
+          #    command: 'test'
+           #   projects: '**/*Tests/*.csproj'
+            #  arguments: '--configuration $(buildConfiguration)'
+
+          # Create package output directory
+          - task: PowerShell@2
+            displayName: 'Create Package Directory'
+            inputs:
+              targetType: 'inline'
+              script: |
+                New-Item -ItemType Directory -Force -Path "$(packageOutputPath)"
+
+          # Pack AuthLibrary
+          - task: DotNetCoreCLI@2
+            displayName: 'Pack AuthLibrary'
+            inputs:
+              command: 'pack'
+              packagesToPack: '**/AuthLibrary.csproj'
+              configuration: '$(buildConfiguration)'
+              packDirectory: '$(packageOutputPath)'
+              versioningScheme: 'off'
+              arguments: >
+                --no-build
+                /p:PackageVersion=$(packageVersion)
+
+          # Publish NuGet package to Azure Artifacts
+          - task: NuGetCommand@2
+            displayName: 'Publish NuGet Package'
+            inputs:
+              command: 'push'
+              packagesToPush: '$(packageOutputPath)/*.nupkg'
+              nuGetFeedType: 'internal'
+              publishVstsFeed: 'd5d8b047-cdab-46a8-9e7f-bf8fdf2b66cd/ae20064c-e0ef-44ef-a06c-377016ad8c9f'
+              allowPackageConflicts: true
