@@ -1,367 +1,441 @@
-# Advanced Microservices with .NET & Azure
+# Advanced Microservices with .NET – Development & Azure Deployment
 
-A cloud-ready microservices solution built with **ASP.NET Core, C#, RabbitMQ, MassTransit, Azure Service Bus, and Microsoft Azure**.
+A practical software engineering project focused on designing, developing, securing, and deploying distributed applications using **C#, ASP.NET Core, Microservices Architecture, messaging systems, and Microsoft Azure**.
 
-This project explores the design, development, integration, and deployment of distributed applications using modern .NET technologies and microservices architectural patterns.
+This repository documents my implementation and learning journey through the Udemy course:
 
-It demonstrates how independently deployable services communicate through synchronous HTTP requests and asynchronous event-driven messaging while maintaining separation of concerns, security, scalability, and maintainability.
+**Advanced Microservices with .NET: Development & Azure Deploy**
 
----
-
-## Overview
-
-The objective of this project is to develop a distributed application using **Microservices Architecture** and explore the engineering practices required to build and deploy cloud-ready .NET applications.
-
-The solution focuses on service independence, inter-service communication, centralized API routing, authentication, authorization, asynchronous messaging, caching, and automated deployment.
-
-It also explores how Microsoft Azure services can be integrated into a distributed .NET environment.
-
-## Technology Stack
-
-| Technology | Purpose |
-|---|---|
-| C# / .NET | Application development |
-| ASP.NET Core Web API | Microservice development |
-| Entity Framework Core | Data access and ORM |
-| SQL Server | Relational data storage |
-| RabbitMQ | Message broker |
-| MassTransit | Distributed messaging abstraction |
-| Azure Service Bus | Cloud-based messaging |
-| Ocelot API Gateway | API routing and gateway authorization |
-| MediatR | CQRS and request handling |
-| FluentValidation | Request validation |
-| Redis | Distributed caching |
-| SendGrid | Email notifications |
-| JWT | Authentication and authorization |
-| Swagger / OpenAPI | API documentation |
-| Postman | API testing and automation |
-| Docker | Containerization |
-| Azure App Service | Cloud application hosting |
-| Azure DevOps | CI/CD and release automation |
-| Azure SQL | Cloud relational database |
+The project explores modern backend engineering practices, distributed system communication, authentication and authorization, reusable NuGet packages, performance optimization, automated testing, and cloud deployment.
 
 ---
 
-## Architecture
 
-The application follows a distributed microservices architecture in which individual services are responsible for specific business capabilities.
+## 🎯 Objectives
 
-Services communicate using two primary approaches:
+The primary objective is to develop practical skills in building secure, scalable, maintainable, and cloud-ready distributed applications.
 
-**Synchronous Communication**
-- HTTP-based REST API communication.
-- API Gateway routing through Ocelot.
-- Service-to-service communication.
-- Centralized request authorization.
+Key learning areas include:
 
-**Asynchronous Communication**
-- Event-driven communication using RabbitMQ.
-- Message publishing and consumption with MassTransit.
-- Azure Service Bus topics and subscriptions.
-- Decoupled communication between services.
-
-### High-Level Architecture
-
-```text
-                  CLIENT APPLICATION
-                         |
-                         |
-                  OCELOT API GATEWAY
-                         |
-          +--------------+--------------+
-          |              |              |
-          v              v              v
-      SERVICE A      SERVICE B      SERVICE C
-          |              |              |
-          v              v              v
-       DATABASE       DATABASE       DATABASE
-          |              |              |
-          +--------------+--------------+
-                         |
-                  MESSAGE BROKER
-                         |
-                +--------+--------+
-                |                 |
-             RabbitMQ        Azure Service Bus
-                |                 |
-                +--------+--------+
-                         |
-                  EVENT CONSUMERS
-```
-
-*Illustrative architecture showing the major components and communication patterns.*
+- Understanding microservices architecture and distributed systems.
+- Implementing event-driven and synchronous communication.
+- Building message-driven applications using RabbitMQ, MassTransit, and Azure Service Bus.
+- Implementing authentication and multi-level authorization.
+- Managing application roles, claims, and permissions.
+- Generating and validating JWT authentication tokens.
+- Applying CQRS and MediatR design patterns.
+- Implementing request validation and custom pipeline behaviours.
+- Building reusable NuGet packages.
+- Implementing API Gateway routing and authorization using Ocelot.
+- Applying caching strategies using Redis.
+- Implementing email notifications using SendGrid.
+- Applying Clean Architecture principles.
+- Managing SQL databases and Entity Framework Core.
+- Documenting REST APIs using Swagger UI.
+- Creating professional Postman collections and scripts.
+- Automating builds and deployments using Azure DevOps.
+- Publishing packages through Azure Artifacts.
+- Deploying microservices to Azure Web Apps.
+- Configuring Azure App Service environment variables.
+- Implementing service reliability and offline-service handling.
 
 ---
 
-## Key Features
+## 🛠️ Technology Stack
+
+The following technologies and tools are explored throughout the project.
+
+### Backend Development
+
+| Technology                           | Purpose                         |
+| ------------------------------------ | ------------------------------- |
+| C#                                   | Primary programming language    |
+| .NET / ASP.NET Core                  | Backend application development |
+| ASP.NET Core Web API                 | RESTful API development         |
+| Entity Framework Core                | Database access and ORM         |
+| MediatR                              | CQRS and request handling       |
+| FluentValidation / Custom Validation | Request validation              |
+
+### Microservices & Messaging
+
+| Technology                 | Purpose                                 |
+| -------------------------- | --------------------------------------- |
+| Microservices Architecture | Distributed application design          |
+| MassTransit                | Message-based communication abstraction |
+| RabbitMQ                   | Message broker                          |
+| Exchanges & Queues         | Message routing and delivery            |
+| Azure Service Bus          | Cloud messaging infrastructure          |
+| Topics & Subscriptions     | Publish/subscribe messaging             |
+| Ocelot                     | API Gateway and routing                 |
+
+### Security & Identity
+
+| Technology                 | Purpose                      |
+| -------------------------- | ---------------------------- |
+| ASP.NET Core Identity      | User and role management     |
+| JWT                        | Token-based authentication   |
+| Claims-based Authorization | Identity and access control  |
+| Role-based Authorization   | Access management            |
+| Custom NuGet Libraries     | Reusable security components |
+
+### Database & Performance
+
+| Technology                 | Purpose                              |
+| -------------------------- | ------------------------------------ |
+| SQL Server / SQL Databases | Relational data storage              |
+| Entity Framework Core      | Data persistence                     |
+| Azure Cache for Redis      | Distributed caching                  |
+| Cache-Aside Pattern        | Application performance optimization |
+| Database Migrations        | Database schema management           |
+
+### Cloud & DevOps
+
+| Technology                              | Purpose                               |
+| --------------------------------------- | ------------------------------------- |
+| Microsoft Azure                         | Cloud infrastructure                  |
+| Azure DevOps                            | Source control and project management |
+| Azure Repos                             | Git repository management             |
+| Azure Pipelines                         | Continuous Integration and Deployment |
+| Azure Artifacts                         | NuGet package management              |
+| Azure Web Apps                          | Application hosting                   |
+| Azure App Service Environment Variables | Cloud configuration                   |
+| Azure Releases                          | Deployment automation                 |
+
+### Development & API Tools
+
+| Technology    | Purpose                           |
+| ------------- | --------------------------------- |
+| Visual Studio | Development environment           |
+| Git           | Version control                   |
+| NuGet         | Dependency and package management |
+| Swagger UI    | API documentation                 |
+| Postman       | API testing and automation        |
+| SendGrid      | Email notification services       |
+
+---
+
+## 🏗️ Architecture & Design Patterns
+
+This project explores several architectural approaches and design patterns used in modern enterprise applications.
 
 ### 1. Microservices Architecture
-- Independently developed application services.
-- Separation of business responsibilities.
+
+Designing applications as independently developed and deployable services with clearly defined responsibilities.
+
+Key concepts:
+
+- Service boundaries.
+- Independent service deployment.
 - Service-to-service communication.
-- Maintainable and modular application structure.
+- Distributed data management.
+- Service reliability.
+- Fault handling.
 
-### 2. Event-Driven Communication
-- Asynchronous messaging using RabbitMQ.
-- Message publishing and consumption with MassTransit.
-- Azure Service Bus topics and subscriptions.
-- Loosely coupled distributed services.
+### 2. Communication Patterns
 
-### 3. Authentication & Authorization
-- JWT token generation and validation.
-- Secure authentication across services.
-- Role-based authorization.
-- Multi-level permission checks.
-- API Gateway authorization.
+**Synchronous communication**
 
-### 4. API Gateway
-- Centralized API entry point using Ocelot.
-- Request routing to individual microservices.
-- Gateway-level authorization.
-- Simplified client-to-service communication.
+Services communicate directly through HTTP-based APIs and REST endpoints.
 
-### 5. CQRS & Request Processing
-- Command Query Responsibility Segregation (CQRS).
-- Request handling with MediatR.
-- Custom pipeline behaviors.
-- Request validation using FluentValidation.
-- Separation of application concerns.
+**Asynchronous communication**
 
-### 6. Caching & Performance
-- Redis distributed caching.
-- Cache-Aside design pattern.
-- Improved API response performance.
-- Reduced unnecessary database queries.
+Services exchange messages through messaging infrastructure.
 
-### 7. Shared Libraries & NuGet Packages
-- Reusable shared application components.
-- Custom NuGet package development.
-- Centralized shared logic.
-- Consistent implementation across services.
+Technologies explored:
 
-### 8. Cross-Cutting Concerns
-- Centralized logging.
-- Exception handling.
-- Request validation.
-- Service availability and offline handling.
-- Consistent API responses.
+- RabbitMQ
+- MassTransit
+- Azure Service Bus
 
-### 9. Email Notifications
-- SendGrid integration.
-- Email notification workflows.
-- Integration with distributed application services.
+### 3. CQRS – Command Query Responsibility Segregation
+
+Separating operations that modify application state from operations that retrieve information.
+
+Implemented using MediatR and request-handling patterns.
+
+### 4. Cache-Aside Pattern
+
+Improving application performance by retrieving frequently accessed information from Redis before querying the underlying database.
+
+### 5. API Gateway Pattern
+
+Using Ocelot to provide a central entry point for client requests, routing requests to appropriate microservices and applying gateway-level authorization.
+
+### 6. Clean Architecture
+
+Organizing application responsibilities to improve maintainability, testability, and separation of concerns.
 
 ---
 
-## Cloud Deployment & DevOps
+## 🔐 Authentication & Authorization
 
-The project explores deploying distributed .NET applications to Microsoft Azure and automating delivery workflows using Azure DevOps.
+Security is an important part of the project.
 
-### Microsoft Azure
-- Azure App Service for hosting microservices.
-- Azure SQL for relational database hosting.
-- Azure Cache for Redis.
-- Azure Service Bus for asynchronous messaging.
-- App Service environment variable configuration.
-- Cloud application configuration.
+The identity and authorization implementation explores:
 
-### Azure DevOps
-- Automated build pipelines.
-- CI/CD pipeline configuration.
-- Azure Artifacts for package management.
-- Release pipelines.
-- Automated application deployment.
+- Application user management.
+- Application role management.
+- Role claims.
+- Permission-based authorization.
+- JWT generation.
+- JWT validation.
+- Multi-level authorization checks.
+- Reusable authentication and authorization libraries.
 
-### Deployment Workflow
+### AuthLibrary
 
-```text
-       DEVELOPER
-           |
-           v
-      SOURCE CODE
-           |
-           v
-      AZURE REPOS
-           |
-           v
-      BUILD PIPELINE
-           |
-           v
-      AUTOMATED TESTS
-           |
-           v
-      AZURE ARTIFACTS
-           |
-           v
-      RELEASE PIPELINE
-           |
-           v
-      AZURE APP SERVICE
-           |
-           v
-    DEPLOYED MICROSERVICES
-```
+A reusable class library developed to centralize shared authentication and authorization functionality.
+
+Its intended responsibilities include:
+
+- Permission definitions.
+- Claim definitions.
+- Authorization requirements.
+- Custom authorization handlers.
+- Reusable permission-based authorization components.
+
+The library is designed to be packaged and distributed through NuGet, allowing other applications and microservices to reuse shared security functionality.
 
 ---
 
-## Project Structure
+## 📦 NuGet Package Management
 
-The following is an illustrative structure for organizing the solution. Actual directories may differ depending on the implementation.
+The project explores creating and managing reusable NuGet packages.
+
+The AuthLibrary component provides an opportunity to understand:
+
+1. Developing reusable .NET class libraries.
+2. Configuring NuGet package metadata.
+3. Managing semantic package versions.
+4. Building and packing NuGet packages.
+5. Publishing packages to Azure Artifacts.
+6. Consuming reusable packages in other .NET applications.
+
+---
+
+## ⚙️ CI/CD – Azure DevOps
+
+Azure DevOps is used to manage source code, automate builds, publish packages, and prepare applications for cloud deployment.
+
+### Continuous Integration (CI)
+
+The build pipeline is designed to automate:
+
+- .NET SDK installation.
+- NuGet dependency restoration.
+- Solution compilation.
+- Unit testing.
+- NuGet package generation.
+- Publishing packages to Azure Artifacts.
+
+### Continuous Deployment (CD)
+
+The deployment workflow explores:
+
+- Azure service configuration.
+- Application deployment to Azure Web Apps.
+- Environment variable configuration.
+- Release automation.
+- Cloud application integration.
+
+---
+
+## 📂 Repository Structure
+
+The repository structure will evolve as the implementation progresses.
 
 ```text
-AdvancedMicroservices/
+Advanced-Microservices-DotNet/
 │
-├── ApiGateway/
-│   └── ApiGateway/
+├── AuthLibrary/
+│   ├── AuthLibrary.csproj
+│   └── ...
+│
+├── IdentityService/
+│   └── ...
 │
 ├── Services/
-│   ├── ServiceA/
-│   │   ├── API/
-│   │   ├── Application/
-│   │   ├── Domain/
-│   │   └── Infrastructure/
-│   │
-│   ├── ServiceB/
-│   │   ├── API/
-│   │   ├── Application/
-│   │   ├── Domain/
-│   │   └── Infrastructure/
-│   │
-│   └── ServiceC/
-│       ├── API/
-│       ├── Application/
-│       ├── Domain/
-│       └── Infrastructure/
+│   └── ...
 │
-├── BuildingBlocks/
-│   └── SharedLibraries/
-│
-├── Messaging/
-│   ├── RabbitMQ/
-│   └── AzureServiceBus/
+├── ApiGateway/
+│   └── ...
 │
 ├── Tests/
+│   └── ...
 │
-├── docker-compose.yml
-├── README.md
-└── .gitignore
+├── docs/
+│   ├── architecture.md
+│   └── implementation-notes.md
+│
+├── azure-pipelines.yml
+│
+└── README.md
 ```
+
+*The structure is illustrative and will be adjusted to match the actual implementation.*
 
 ---
 
-## Getting Started
+## 💻 Development Environment
+
+The project is developed using a Microsoft development environment.
 
 ### Prerequisites
 
-- .NET SDK compatible with the solution.
-- Visual Studio, JetBrains Rider, or Visual Studio Code.
-- SQL Server or Azure SQL.
-- Docker Desktop or Docker Engine.
-- RabbitMQ.
-- Redis.
+- Windows 11.
+- Visual Studio 2022.
+- Compatible .NET SDK.
+- SQL Server.
+- SQL Server Management Studio.
+- Git.
+- Azure DevOps account.
+- Microsoft Azure account.
 - Postman.
-- Azure account (for cloud deployment exercises).
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/PLThabangR/Advanced-.Net-Microservice.git
-cd AdvancedMicroservices
-```
-
-### 2. Configure Application Settings
-
-Configure the required connection strings, messaging endpoints, JWT settings, Redis configuration, and external service credentials.
-
-Use environment variables or .NET User Secrets for sensitive configuration.
-
-### 3. Start Infrastructure Dependencies
-
-If Docker Compose is configured:
+### Clone the Repository
 
 ```bash
-docker compose up -d
+git clone <YOUR-REPOSITORY-URL>
 ```
 
-### 4. Restore Dependencies
+Navigate to the repository:
+
+```bash
+cd Advanced-Microservices-DotNet
+```
+
+Restore dependencies:
 
 ```bash
 dotnet restore
 ```
 
-### 5. Build the Solution
+Build the solution:
 
 ```bash
-dotnet build
+dotnet build --configuration Release
 ```
 
-### 6. Run the Services
+Run automated tests:
 
-Run the individual microservices and API Gateway according to their project configurations.
+```bash
+dotnet test
+```
 
-### 7. Explore API Documentation
-
-Open the Swagger UI endpoint configured for each API service.
-
-Use Postman collections to test service communication, authentication, authorization, and messaging workflows.
+*Note: Commands should be executed from the appropriate solution or project directory.*
 
 ---
 
-## Engineering Concepts Demonstrated
+## 📚 Learning Progress
 
-This project provides practical exposure to:
+This repository is being developed incrementally while following the course.
 
-- Distributed systems architecture.
-- Microservices design principles.
-- Synchronous and asynchronous communication.
-- Event-driven architecture.
-- Message brokers and message consumers.
-- API Gateway patterns.
-- Authentication and authorization.
-- CQRS and MediatR.
-- Clean Architecture.
-- Distributed caching.
-- Database integration.
-- Shared library development.
-- Cloud-native application deployment.
-- CI/CD automation.
-- Application reliability and fault handling.
+Progress is tracked to document the practical implementation of each major concept.
 
----
-
-## Future Improvements
-
-Potential enhancements for taking the solution further:
-
-- [ ] Implement distributed tracing with OpenTelemetry.
-- [ ] Integrate centralized observability.
-- [ ] Implement health checks for all services.
-- [ ] Add retry policies and circuit breakers using Polly.
-- [ ] Implement transactional outbox and inbox patterns.
-- [ ] Introduce idempotent message processing.
-- [ ] Implement distributed workflow orchestration.
-- [ ] Add comprehensive unit and integration tests.
-- [ ] Containerize all microservices.
-- [ ] Introduce Infrastructure as Code using Terraform.
-- [ ] Implement Azure Key Vault integration.
-- [ ] Improve automated deployment and rollback strategies.
-
----
-
-## Author
-
-**Thabang Rakgoropo**
-
-Full-Stack Software Developer | C# | .NET | ASP.NET Core | React | TypeScript | Azure
-
-Interested in designing, developing, and deploying secure, scalable business applications using modern software engineering practices.
-
-**GitHub:** https://github.com/PLThabangR
-
-**LinkedIn:** https://www.linkedin.com/in/ttrakgoropo/
+- [ ] Microservices Architecture Review
+- [ ] Project Requirements and Architecture
+- [ ] Application Roles and Role Claims
+- [ ] Database Context Implementation
+- [ ] Database Table Configurations
+- [ ] Configuration Registration from Assemblies
+- [ ] Dependency Injection – DbContext
+- [ ] Entity Framework Core Migrations
+- [ ] Identity Models
+- [ ] User Registration
+- [ ] Role and Permission Management
+- [ ] JWT Authentication and Validation
+- [ ] Authorization and Permission Checks
+- [ ] Custom Authentication Library
+- [ ] NuGet Package Creation and Publishing
+- [ ] CQRS Implementation
+- [ ] MediatR Request Handling
+- [ ] Custom Validation Pipeline Behaviours
+- [ ] Ocelot API Gateway
+- [ ] Synchronous Microservices Communication
+- [ ] RabbitMQ Integration
+- [ ] MassTransit Integration
+- [ ] Azure Service Bus Integration
+- [ ] Event-Driven Communication
+- [ ] Redis Distributed Caching
+- [ ] Cache-Aside Pattern
+- [ ] SendGrid Email Notifications
+- [ ] Swagger API Documentation
+- [ ] Postman Collections and Scripts
+- [ ] Service Reliability and Offline Handling
+- [ ] Azure DevOps CI/CD Pipelines
+- [ ] Azure Artifacts
+- [ ] Azure Web Apps Deployment
+- [ ] Azure Environment Configuration
+- [ ] Cloud Deployment and Integration
 
 ---
 
-## License
+## 🧪 Testing & API Documentation
 
-This project is intended for educational, professional development, and portfolio purposes.
+The project also explores professional API development and testing practices.
+
+Areas of focus:
+
+- REST API testing using Postman.
+- Postman collections and automation scripts.
+- API documentation using Swagger UI.
+- Request validation.
+- Authentication and authorization testing.
+- Service communication testing.
+- Application build and test automation.
+
+---
+
+## ☁️ Cloud Deployment Goals
+
+The ultimate goal is to understand how to move microservices from local development environments into Microsoft Azure.
+
+Deployment objectives include:
+
+- Configuring cloud-hosted applications.
+- Deploying services to Azure Web Apps.
+- Managing application configuration.
+- Connecting applications to SQL databases.
+- Integrating Azure Service Bus.
+- Configuring cloud-based caching.
+- Automating deployment through Azure DevOps.
+- Managing application releases and versions.
+
+---
+
+## 📈 Expected Outcomes
+
+By completing the practical implementation, I aim to develop stronger engineering capabilities in:
+
+1. Designing distributed applications using microservices architecture.
+2. Developing secure backend services with ASP.NET Core.
+3. Implementing event-driven and asynchronous communication.
+4. Managing identity, authentication, and authorization.
+5. Applying CQRS and Clean Architecture.
+6. Developing reusable .NET libraries and NuGet packages.
+7. Integrating messaging systems and distributed caching.
+8. Automating CI/CD pipelines using Azure DevOps.
+9. Deploying and configuring applications in Microsoft Azure.
+10. Understanding production-oriented software engineering practices.
+
+---
+
+## 📌 Project Status
+
+**Status:** In Progress
+
+This repository represents an ongoing practical learning and implementation project.
+
+The goal is not only to follow the course material but also to understand the underlying technologies, architectural decisions, implementation details, and engineering practices involved in developing modern .NET microservices.
+
+As development progresses, I will update this repository with source code, implementation notes, architecture documentation, pipeline configurations, and deployment exercises.
+
+---
+
+## 👨‍💻 About
+
+I am a Full-Stack Software Developer focused on TypeScript, React, C#/.NET, and Microsoft Azure.
+
+This project forms part of my continuous development in enterprise backend engineering, distributed systems, microservices architecture, and cloud technologies.
+
+**Building practical solutions. Understanding architecture. Engineering for scale.**
