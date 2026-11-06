@@ -11,5 +11,6 @@ namespace Infrastructure.Constants
         //We are defining a constant string for the Identity schema name.
         //This will be used to specify the schema name for the Identity tables in the database.
         public const string Identity = "Identity";
+
     }
 }

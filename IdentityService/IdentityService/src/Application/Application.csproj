@@ -11,7 +11,13 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="ResponseWrapper" Version="1.0.0" />
+    <PackageReference Include="TRResponseWrapper" Version="1.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="features\Token\" />
+    <Folder Include="features\Roles\" />
+    <Folder Include="features\User\Queries\" />
   </ItemGroup>
 
 </Project>
