@@ -19,7 +19,7 @@ namespace Application.features.User
         Task<IResponseWrapper> ChangeUserPasswordAsync(ChangePasswordRequest changePassword);
         Task<IResponseWrapper> ChangeUserStatusAsync(ChangeUserStatusRequest changeUserStatus);
         Task<IResponseWrapper> UpdateUserRolesAsync(UpdateUserRolesRequest updateUserRoles);
-        Task<IResponseWrapper> GetUserRolesAsync();
-        Task<IResponseWrapper<UserResponse>> GetUserByEmailAsnc(string email);
+        Task<IResponseWrapper> GetUserRolesAsync(string userId);
+        Task<IResponseWrapper> GetUserByEmailAsnc(string email);
     }
 }

@@ -20,11 +20,17 @@ namespace Infrastructure.Services
     {   
         //We need userManager to create users
         private readonly UserManager<ApplicationUser> userManager;
+
+        //We must include a interface or contract to deal with roles
+        private readonly RoleManager<ApplicationRole> roleManager;
             
         //Inject the UserManager using the ApplicationUser
-        public UserService(UserManager<ApplicationUser> userManager)
-        {
+        public UserService(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+        {   
+            //This handle users
             this.userManager = userManager;
+            //this handle user roles
+            this.roleManager = roleManager;
         }
 
         public async Task<IResponseWrapper> RegisterUserAsync(UserRegistrationRequest userRegistration)
@@ -126,7 +132,7 @@ namespace Infrastructure.Services
 
         public async Task<IResponseWrapper> GetAllUsersAsync()
         {
-            //Get all users
+            //Get all users from users db
             var usersInDb = await userManager.Users.ToListAsync();
             //If count is greater than zero which mean we have user or users to return
             if(usersInDb.Count > 0)
@@ -160,24 +166,150 @@ namespace Infrastructure.Services
             return await AppResponse.FailAsync("No user were found");
         }
 
-        public Task<IResponseWrapper> ChangeUserStatusAsync(ChangeUserStatusRequest changeUserStatus)
-        {
-            throw new NotImplementedException();
+        public async Task<IResponseWrapper> ChangeUserStatusAsync(ChangeUserStatusRequest changeUserStatus)
+        { //find user by ID
+            var userInDb = await userManager.FindByIdAsync(changeUserStatus.UserId);
+
+            if (userInDb is not null)
+            {      //Change status set the incoming value to is Active
+                userInDb.IsActive = changeUserStatus.ActivateOrDeactivate;
+
+                //Then update the user in the DB
+                var identityResult = await userManager.UpdateAsync(userInDb);
+                //If change passed we return message to user
+                if (identityResult.Succeeded)
+                    //Check if the user is activated or not and return the success message
+                {   var msg = changeUserStatus.ActivateOrDeactivate ? "User activated successfully": "UserDeactivated successfully ";
+                    return await AppResponse.SuccessAsync(msg);
+                }
+                //We are going to show the exact error description
+                return await AppResponse.FailAsync(GetIdentityResultErrorDescription(identityResult));
+
+            }
+            //If we do not find any user
+            return await AppResponse.FailAsync("User does not exist");
+
         }
 
-        public Task<IResponseWrapper> UpdateUserRolesAsync(UpdateUserRolesRequest updateUserRoles)
+        public async Task<IResponseWrapper> UpdateUserRolesAsync(UpdateUserRolesRequest updateUserRoles)
         {
-            throw new NotImplementedException();
+            //find user by ID
+            var userInDb = await userManager.FindByIdAsync(updateUserRoles.UserId);
+
+            if (userInDb is not null)
+            {
+                //Updating of role assign permissions or claims
+                //restrict one Admin user to alaways have admin previleges
+                if (userInDb.Email == AppCredentials.Email)
+                {
+                    //We block you from change or updating this user
+                    return await AppResponse.FailAsync(message: "User roles not permited");
+                }
+
+                //Obtain all roles for specific user 
+                var currentAssignedRoles = await userManager.GetRolesAsync(userInDb);
+
+                //We use a filter to check all tht roles that are check from the frontend 
+                var rolesToBeAssigned = updateUserRoles.Roles.Where(role => role.IsAssignedToUser).ToList();
+
+                //We remove the current or previous assigned and put the new one
+                //we use a remove function and we pass the current user and current roles assigned
+                var identityRemovingResult = await userManager.RemoveFromRolesAsync(userInDb,currentAssignedRoles);
+
+                if (identityRemovingResult.Succeeded)
+                {
+                    //Add the new roles
+                    //this will add role names using select
+                    var identityAssigningResult = await userManager.AddToRolesAsync(userInDb, rolesToBeAssigned.Select(role => role.RoleName));
+
+                    //verify
+                    if (identityAssigningResult.Succeeded)
+                    {
+                        return await AppResponse.SuccessAsync(message: "User roles updated successfully ");
+                    }
+                    else
+                    {
+                        return await AppResponse.FailAsync(GetIdentityResultErrorDescription(identityAssigningResult));
+                    }
+
+                }
+                //We are going to show the exact error description
+                return await AppResponse.FailAsync(GetIdentityResultErrorDescription(identityRemovingResult));
+            }
+
+
+            //If we do not find any user
+            return await AppResponse.FailAsync("User does not exist");
+
+
         }
 
-        public Task<IResponseWrapper> GetUserRolesAsync()
+        public async  Task<IResponseWrapper> GetUserRolesAsync(string userId)
         {
-            throw new NotImplementedException();
+            //create a new object list 
+            var userRolesViewModel = new List<UserRoleViewModel>();
+
+            //Verification using usermanager
+            //Find user by Id
+            var userInDb = await userManager.FindByIdAsync(userId);
+
+            if (userInDb is not null)
+            {    //logic to get user roles
+                //Find the roles use role manager to obtain all the roles
+                var allRoles = await roleManager.Roles.ToListAsync();
+
+                //loop through to check if role is assigned to user or not
+                foreach(var role in allRoles)
+                {
+                    //Create a single user viewModel
+                    var userRoleViewModel = new UserRoleViewModel
+                    {
+                        RoleName = role.Name,
+                        RoleDescription = role.Description
+                    };
+                    //Check if role is assigned to specific user
+                    //this will return true and go inside the if statemaent
+                    if (await userManager.IsInRoleAsync(userInDb, role.Name))
+                    {
+                        userRoleViewModel.IsAssignedToUser = true;
+                    }
+                    else
+                    {
+                        //Not currently assigned to user
+                        userRoleViewModel.IsAssignedToUser = false;
+                    }
+
+                    //Go to the list of userRolesView model and add the current role
+                    userRolesViewModel.Add(userRoleViewModel);
+
+                }//end of foreach
+                //Return the list of User role
+                return await ResponseWrapper<List<UserRoleViewModel>>.SuccessAsync(userRolesViewModel);
+
+
+            }
+            //If we do not find any user
+            return await AppResponse.FailAsync("User does not exist");
+
         }
 
-        public Task<IResponseWrapper<UserResponse>> GetUserByEmailAsnc(string email)
+        public async Task<IResponseWrapper> GetUserByEmailAsnc(string email)
         {
-            throw new NotImplementedException();
+            //Find user by email
+            var userInDb = await userManager.FindByEmailAsync(email);
+
+            if (userInDb is not null)
+            {      //Change status
+                var mappedUser = userInDb.Adapt<UserResponse>();
+
+                //Return the Users using the response wrapper of type userResponse
+                return await ResponseWrapper<UserResponse>.SuccessAsync(mappedUser);
+
+
+            }
+            //If we do not find any user
+            return await AppResponse.FailAsync("User does not exist");
+
         }
 
         //Descriptions are freindly error messages 

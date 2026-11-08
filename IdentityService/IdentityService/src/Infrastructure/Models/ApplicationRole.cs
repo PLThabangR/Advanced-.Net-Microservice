@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Models
 {
+    //role extent the Identity role
     public class ApplicationRole:IdentityRole
     {
         public string Description { get; set; }
