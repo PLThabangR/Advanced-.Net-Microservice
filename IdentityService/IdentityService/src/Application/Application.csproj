@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="features\Roles\Commands\" />
+    <Folder Include="features\Roles\Queries\" />
     <Folder Include="features\Token\" />
-    <Folder Include="features\Roles\" />
-    <Folder Include="features\User\Queries\" />
   </ItemGroup>
 
 </Project>
